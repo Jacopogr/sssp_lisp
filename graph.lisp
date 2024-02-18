@@ -1,27 +1,6 @@
 (defparameter *vertices* (make-hash-table :test #'equal))
 (defparameter *graphs* (make-hash-table :test #'equal))
 (defparameter *edges* (make-hash-table :test #'equal))
-(defparameter *visited* (make-hash-table :test #'equal))
-
-(defun mark-visited (vertex-id)
-  (setf (gethash vertex-id *visited*) t))
-;; restituisce t se il vertex-id è stato visitato, altrimenti restituisce nil
-(defun is-visited (vertex-id)
-  (gethash vertex-id *visited*))
-
-(defparameter *distances* (make-hash-table :test #'equal))
-(defun set-distance (vertex-id distance)
-  (setf (gethash vertex-id *distances*) distance))
-;; restituisce la distanza associata al vertex-id se esiste, altrimenti restituisce nil
-(defun get-distance (vertex-id)
-  (gethash vertex-id *distances*))
-
-(defparameter *previous* (make-hash-table :test #'equal))
-(defun set-previous (vertex-id previous-id)
-  (setf (gethash vertex-id *previous*) previous-id))
-;; restituisce il previous-id associato al vertex-id se esiste, altrimenti restituisce nil
-(defun get-previous (vertex-id)
-  (gethash vertex-id *previous*))
 
 (defun is-graph (graph-id) ;; graph-id è un atomo: un simbolo (non NIL) o un intero.
     (gethash graph-id *graphs*)) ;; restituisce il grafo associato a graph-id, se esiste.
@@ -43,13 +22,17 @@
   nil)
 
 (defun new-vertex (graph-id vertex-id)
-  ;; graph-id è un atomo: un simbolo (non NIL) o un intero.
-  ;; vertex-id pure.
+  (cond ((null vertex-id)
+          (error "Il vertex-id non puo' essere nullo."))
+        ((not (is-graph graph-id))
+          (error "Il grafo ~a non esiste." graph-id)))
   (setf (gethash (list 'vertex graph-id vertex-id)
 *vertices*)
 (list 'vertex graph-id vertex-id)))
 
 (defun graph-vertices (graph-id)
+(cond ((not (is-graph graph-id))
+         (error "Il grafo specificato non esiste.")))
   (let ((vertices ()))
     (maphash (lambda (k v) 
                (when (and (eq (first k) 'vertex) (eq (second k) graph-id))
