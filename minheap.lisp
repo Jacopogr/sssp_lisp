@@ -1,30 +1,31 @@
 (defparameter *heaps* (make-hash-table :test #'equal))
 
-
 (defun new-heap (heap-id &optional (capacity 42))
     (or (gethash heap-id *heaps*)
         (setf (gethash heap-id *heaps*)
             (list 'heap heap-id 0 (make-array capacity)))))
 
-(defun heap-id (heap-id)
-  (let ((heap (gethash heap-id *heaps*)))
-    (when heap
-      (second heap)))) ;; ritorna l'heap id che è il secondo elemento della lista
+(defun heap-id (heap-rep)
+  (second heap-rep))
 
-(defun heap-size (heap-id)
-  (let ((heap (gethash heap-id *heaps*)))
-    (when heap
-      (third heap))))
+(defun heap-size (heap-rep)
+  (third heap-rep))
 
-(defun heap-actual-heap (heap-id)
-  (let ((heap (gethash heap-id *heaps*)))
-    (when heap
-      (fourth heap))))
+(defun heap-actual-heap (heap-rep)
+  (fourth heap-rep))
 
 (defun heap-delete (heap-id)
+(cond ((not (gethash heap-id *heaps*))
+       (error "Non esiste l'heap con id ~A" heap-id)))
   (remhash heap-id *heaps*))
 
+(defun get-heap (heap-id)
+  (let ((heap (gethash heap-id *heaps*)))
+    heap))
+
 (defun heap-empty (heap-id)
+  (cond ((not (gethash heap-id *heaps*))
+         (error "Non esiste l'heap con id ~A" heap-id)))
   (let ((heap (gethash heap-id *heaps*)))
     (unless heap
       (error "Heap ~A non esiste" heap-id))
@@ -32,6 +33,8 @@
       (zerop (third heap)))))
 
 (defun heap-not-empty (heap-id)
+  (cond ((not (gethash heap-id *heaps*))
+         (error "Non esiste l'heap con id ~A" heap-id)))
   (let ((heap (gethash heap-id *heaps*)))
   (unless heap
       (error "Heap ~A non esiste" heap-id))
@@ -39,13 +42,16 @@
       (not (zerop (third heap))))))
 
 (defun heap-head (heap-id)
+  (cond ((not (gethash heap-id *heaps*))
+         (error "Non esiste l'heap con id ~A" heap-id)))
   (let ((heap (gethash heap-id *heaps*)))
     (when heap
       (let ((actual-heap (fourth heap)))
         (aref actual-heap 0)))))
 
 (defun heapify-insert (heap-id index)
-  (let ((heap (heap-actual-heap heap-id)))
+  (let* ((heap-rep (get-heap heap-id))
+         (heap (heap-actual-heap heap-rep)))
     (cond ((= index 0) t)
           (t (let ((current (aref heap index))
                    (parent (aref heap (floor (/ index 2)))))
@@ -57,14 +63,16 @@
 
 (defun heap-insert (heap-id K V)
   (cond ((not (gethash heap-id *heaps*))
-         (error "Non esiste l'heap con id ~A" heap-id))) ;;se l'heap non esiste gli stampo un errore
-  (let ((heap (heap-actual-heap heap-id))
-        (size (heap-size heap-id)))
-    (cond ((= size (length heap))
+         (error "Non esiste l'heap con id ~A" heap-id)))
+  (cond ((not (gethash heap-id *heaps*))
+         (error "Non esiste l'heap con id ~A" heap-id))) 
+  (let* ((heap-rep (get-heap heap-id))
+         (size (heap-size heap-rep)))
+    (cond ((= size (length (heap-actual-heap heap-rep)))
             (error "Heap ~A pieno" heap-id)))
-    (setf (aref (heap-actual-heap heap-id) size) (list K V))
+    (setf (aref (heap-actual-heap heap-rep) size) (list K V))
     (setf (gethash heap-id *heaps*)
-          (list 'heap heap-id (+ size 1) (heap-actual-heap heap-id)))
+          (list 'heap heap-id (+ size 1) (heap-actual-heap heap-rep)))
     (heapify-insert heap-id size)))
 
 
@@ -103,9 +111,14 @@
 )
 
 (defun heap-extract (heap-id)
-  (let ((head (heap-head heap-id))
-        (heap (heap-actual-heap heap-id))
-        (size (heap-size heap-id)))
+  (cond ((not (gethash heap-id *heaps*))
+         (error "Non esiste l'heap con id ~A" heap-id)))
+  (let* ((heap-rep (get-heap heap-id))
+        (head (heap-head heap-id))
+        (heap (heap-actual-heap heap-rep))
+        (size (heap-size heap-rep)))
+    (cond ((= size 0)
+           (error "Heap ~A vuoto" heap-id)))
     (setf (aref heap 0) (aref heap (- size 1)))
     (setf (aref heap (- size 1)) NIL)
     (setf (gethash heap-id *heaps*) (list 'heap heap-id (- size 1) heap))
@@ -130,13 +143,15 @@
          (error "Non esiste l'heap con id ~A" heap-id))
         ((= newKey oldKey) t)
         (t (modify-entry heap-id 
-                (heap-size heap-id) 
-                (heap-actual-heap heap-id) 
+                (heap-size (get-heap heap-id)) 
+                (heap-actual-heap (get-heap heap-id)) 
                 newKey 
                 oldKey
                 V))))
 
 (defun heap-print (heap-id)
+  (cond ((not (gethash heap-id *heaps*))
+         (error "Non esiste l'heap con id ~A" heap-id)))
   (let ((heap (gethash heap-id *heaps*)))
     (if heap
         (progn
