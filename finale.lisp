@@ -20,6 +20,8 @@
   (remhash heap-id *heaps*))
 
 (defun get-heap (heap-id)
+  (cond ((not (gethash heap-id *heaps*))
+         (error "Non esiste l'heap con id ~A" heap-id)))
   (let ((heap (gethash heap-id *heaps*)))
     heap))
 
@@ -63,9 +65,9 @@
 
 (defun heap-insert (heap-id K V)
   (cond ((not (gethash heap-id *heaps*))
-         (error "Non esiste l'heap con id ~A" heap-id)))
-  (cond ((not (gethash heap-id *heaps*))
-         (error "Non esiste l'heap con id ~A" heap-id))) 
+       (error "Non esiste l'heap con id ~A" heap-id))
+      ((not (numberp k))
+        (error "La chiave ~A non e' un numero." k)))
   (let* ((heap-rep (get-heap heap-id))
          (size (heap-size heap-rep)))
     (cond ((= size (length (heap-actual-heap heap-rep)))
@@ -134,13 +136,18 @@
                 (cond ((< newKey oldKey)
                        (heapify-insert heap-id i) t)
                       ((> newKey oldKey)
-                       (heapify-up heap i size) t)))     
-               (t (modify-entry heap-id heap size newKey oldKey V 
-                                (+ i 1)))))))
+                       (heapify-up heap i size) t)))   
+                (t (modify-entry heap-id size heap newKey oldKey V 
+                                (+ i 1)))))
+        (t (error "Chiave ~A con Valore ~A non trovata" oldKey V))
+  )
+)
 
 (defun heap-modify-key (heap-id newKey oldKey V)
   (cond ((not (gethash heap-id *heaps*))
          (error "Non esiste l'heap con id ~A" heap-id))
+         ((not (and (numberp newKey) (numberp oldKey)))
+          (error "Sia la nuova chiave che la vecchia chiave devono essere numeri."))
         ((= newKey oldKey) t)
         (t (modify-entry heap-id 
                 (heap-size (get-heap heap-id)) 
@@ -253,7 +260,6 @@
              *edges*)
     vertex-rep-list))
     
-
 (defun graph-print (graph-id)
 (cond ((not (is-graph graph-id))
         (error "Il grafo ~a non esiste." graph-id)))
