@@ -18,7 +18,7 @@
 
 (sssp-dijkstra (quote grafo1) (quote vertice1))
 
-;;(sssp-shortest-path ‘grafo1 ‘vertice1 ‘vertice5)
+(sssp-shortest-path ‘grafo1 ‘vertice1 ‘vertice5)
 
 
 

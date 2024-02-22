@@ -1,3 +1,9 @@
+
+(defparameter *visited* (make-hash-table :test #'equal))
+(defparameter *distances* (make-hash-table :test #'equal))
+(defparameter *previous* (make-hash-table :test #'equal))
+
+
 (defun sssp-dist(graph-id vertex-id)
     (gethash (list graph-id vertex-id) *distances*))
 
@@ -72,14 +78,37 @@
     vertici)
   )
 )
+
+;;STAMPE HASH TABLES
 (defun print-hash-table (hash-table)
   (maphash (lambda (k v) (format t "~a: ~a~%" k v)) hash-table))
 
 (defun print-distances ()
   (print-hash-table *distances*))
-
 (defun print-previous ()
   (print-hash-table *previous*))
 
 (defun print-visited ()
   (print-hash-table *visited*))
+(defun print-edges ()
+  (print-hash-table *edges*))
+(defun print-graphs ()
+  (print-hash-table *graphs*))
+(defun print-vertices ()
+  (print-hash-table *vertices*))
+(defun print-heaps ()
+  (print-hash-table *heaps*))
+;;;;;
+
+(defun sssp-shortest-path(graph-id source vertex-id)
+    (let* ((pred (sssp-previous graph-id vertex-id))
+          (edge (gethash (list 'edge graph-id pred vertex-id) *edges*))
+          (sssp (list edge)))
+        (if (not (eq pred NIL))
+            (progn
+                (setf sssp (append (sssp-shortest-path graph-id source pred) sssp))
+                sssp
+            )
+        )
+    )
+)

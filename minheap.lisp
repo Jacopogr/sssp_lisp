@@ -1,3 +1,4 @@
+
 (defparameter *heaps* (make-hash-table :test #'equal))
 
 (defun new-heap (heap-id &optional (capacity 42))
