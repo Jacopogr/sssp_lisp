@@ -45,6 +45,7 @@
              *vertices*)
     vertices))
 
+;;da aggiungere i controlli
 (defun new-edge (graph-id vertex-id1 vertex-id2 &optional (weight 1))
   (cond ((not (is-graph graph-id))
           (error "Il grafo ~a non esiste." graph-id))
@@ -52,10 +53,19 @@
           (error "Il vertice ~a non esiste." vertex-id1))
         ((not (gethash (list 'vertex graph-id vertex-id2) *vertices*)) 
           (error "Il vertice ~a non esiste." vertex-id2))
-        ((gethash (list graph-id vertex-id1 vertex-id2) *edges*)
-          (error "L'arco ~a -> ~a esiste gia'." source-vertex-id dest-vertex-id)))
-  (setf (gethash (list 'edge graph-id vertex-id1 vertex-id2 weight) *edges*)
-    (list 'edge graph-id vertex-id1 vertex-id2 weight)))
+        ((or (not (numberp weight)) (null weight))
+          (error "Il peso ~a non e' un numero o e' nullo." weight))
+        ((< weight 0)
+          (error "Il peso ~a e' negativo." weight))
+        ;;((equal vertex-id1 vertex-id2)
+          ;;(setf weight 0))
+        ;;((unless (null (gethash (list 'edge graph-id vertex-id1 vertex-id2 weight) *edges*)))
+          ;;(error "L'arco ~a -> ~a esiste gia'." vertex-id1 vertex-id2))
+          ;;((unless (null (gethash (list 'edge graph-id vertex-id2 vertex-id1 weight) *edges*)))
+         ;; (error "L'arco ~a -> ~a esiste gia'." vertex-id2 vertex-id1)))
+    (setf (gethash (list 'edge graph-id vertex-id1 vertex-id2 weight) *edges*)
+      (list 'edge graph-id vertex-id1 vertex-id2 weight))))
+
 
 (defun graph-edges (graph-id)
 (cond ((not (is-graph graph-id))

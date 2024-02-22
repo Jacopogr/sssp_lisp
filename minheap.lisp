@@ -117,7 +117,7 @@
         (head (heap-head heap-id))
         (heap (heap-actual-heap heap-rep))
         (size (heap-size heap-rep)))
-    (cond ((= size 0)
+    (cond ((heap-empty heap-id)
            (error "Heap ~A vuoto" heap-id)))
     (setf (aref heap 0) (aref heap (- size 1)))
     (setf (aref heap (- size 1)) NIL)
