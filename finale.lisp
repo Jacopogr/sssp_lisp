@@ -261,28 +261,19 @@
 
 
 (defun sssp-dist(graph-id vertex-id)
-  ;;(let ((vertex (assoc vertex-id (graph-vertices graph-id))))
     (gethash (list graph-id vertex-id) *distances*))
 
 (defun sssp-visited(graph-id vertex-id)
-  ;;(let ((graph (gethash graph-id *graphs*)))
-    (let ((vertex (assoc vertex-id (graph-vertices graph-id))))
-      (gethash vertex *visited*)))
+      (gethash (list graph-id vertex-id) *visited*))
 
 (defun sssp-previous(graph-id V)
-  ;;(let ((graph (gethash graph-id *graphs*)))
-    (let ((vertex (assoc V (graph-vertices graph-id))))
-      (gethash vertex *previous*)))
+      (gethash (list graph-id V) *previous*))
 
 (defun sssp-change-dist(graph-id V new-dist)
-  ;;(let ((vertex (assoc V (graph-vertices graph-id))))
     (setf (gethash (list graph-id V) *distances* 0) new-dist))
 
 (defun sssp-change-previous(graph-id V U)
-  ;;(let ((graph (gethash graph-id *graphs*)))
-    (let ((vertex-V (assoc V (graph-vertices graph-id)))
-          (vertex-U (assoc U (graph-vertices graph-id))))
-      (setf (gethash vertex-V *previous*) vertex-U)))
+      (setf (gethash (list graph-id V) *previous* 0) U))
 
 (defun sssp-dijkstra(graph-id source)
     (default-distances graph-id)
@@ -297,7 +288,6 @@
 )
 
 (defun sssp-dijkstra-recursive(graph-id heap-id source)
-  (heap-print heap-id)
   (if (heap-empty heap-id) 
       nil
       (progn
@@ -344,3 +334,16 @@
     vertici)
   )
 )
+(defun print-hash-table (hash-table)
+  (maphash (lambda (k v) (format t "~a: ~a~%" k v)) hash-table))
+
+(defun print-distances ()
+  (print-hash-table *distances*))
+
+(defun print-previous ()
+  (print-hash-table *previous*))
+
+(defun print-visited ()
+  (print-hash-table *visited*))
+
+;;(defun sssp-shortest-path)
