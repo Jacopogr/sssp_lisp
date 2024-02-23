@@ -288,8 +288,11 @@
       (setf (gethash (list graph-id V) *previous* 0) U))
 
 (defun sssp-dijkstra(graph-id source)
-    (default-distances graph-id)
-    (default-previous graph-id)
+    (cond ((not (is-graph graph-id))
+        (error "Il grafo ~a non esiste." graph-id))
+        ((not (gethash (list 'vertex graph-id source) *vertices*))
+        (error "Il vertice ~a non esiste." source)))
+    (sssp-reset graph-id)
     (sssp-change-dist graph-id source 0)
     (let 
       ((heap-id (list 'heap graph-id))) ;Variabili
@@ -303,15 +306,16 @@
   (if (heap-empty heap-id) 
       nil
       (progn
-        (setf (gethash source *visited*) t) ;;Setto il nodo come visitato
+        (setf (gethash (list graph-id source) *visited*) t) ;;Setto il nodo come visitato
         (let*
             ((visita (heap-extract heap-id)) ;;Estraggo il nodo con distanza minima
              (vicini (graph-vertex-neighbors graph-id (second visita)))) ;;Prendo i vicini
           (mapcar (lambda (vicino) ;;Per ogni vicino    (EDGE GRAPH-ID VERTEX-ID1 VERTEX-ID2 WEIGHT)
                     (let 
                         ((dist-pred (sssp-dist graph-id (third vicino)));;Prendo la distanza del predecessore
-                         (peso-arco (fifth vicino)) ;;Prendo il peso dell'arco
-                         (dist-vecchia (sssp-dist graph-id (fourth vicino))));;Prendo la distanza attuale
+                        (peso-arco (fifth vicino)) ;;Prendo il peso dell'arco
+                        (dist-vecchia (sssp-dist graph-id (fourth vicino)));;Prendo la distanza attuale
+                        (visitato (sssp-visited graph-id (fourth vicino)))) ;;Prendo il valore visitato
                       (if 
                           (< (+ peso-arco dist-pred) dist-vecchia) ;;Se la distanza attuale è minore della precedente
                           (progn
@@ -319,56 +323,38 @@
                             (sssp-change-previous graph-id (fourth vicino) (second visita)) ;;Aggiorno il predecessore
                           )
                       )
-                      (heap-insert heap-id (sssp-dist graph-id (fourth vicino)) (fourth vicino)) ;;Inserisco il nodo nell'heap
-                      )
+                      (cond ((not visitato) ;;Se il nodo non è stato visitato
+                            (heap-insert heap-id (sssp-dist graph-id (fourth vicino)) (fourth vicino)) ;;Inserisco il nodo nell'heap
+                            (setf (gethash (list graph-id (fourth vicino)) *visited*) t))) ;;setto il nodo come visitato
                     )
-                  vicini)
+                  )
+            vicini)
           )
-        (sssp-dijkstra-recursive graph-id heap-id (heap-head heap-id)) ;;Chiamo la funzione ricorsiva
+        (sssp-dijkstra-recursive graph-id heap-id (second (heap-head heap-id))) ;;Chiamo la funzione ricorsiva
         )
     )
   )
 
-(defun default-distances (graph-id) 
+(defun sssp-reset(graph-id)
   (let 
     ((vertici (graph-vertices graph-id))) ;;Variabili
-    (mapcar (lambda (vertice) ;;Setto tutte le distanze a +infinito
-      (sssp-change-dist graph-id (third vertice) most-positive-double-float))
+    (mapcar (lambda (vertice) ;;Setto tutti i nodi come non visitati
+      (sssp-change-previous graph-id (third vertice) NIL)
+      (sssp-change-dist graph-id (third vertice) most-positive-double-float)
+      (setf (gethash (list graph-id (third vertice)) *visited*) NIL)
+    )
     vertici)
   )
 )
-
-(defun default-previous (graph-id) 
-  (let 
-    ((vertici (graph-vertices graph-id))) ;;Variabili
-    (mapcar (lambda (vertice) ;;Setto tutti i predecessori a NIL
-      (sssp-change-previous graph-id (third vertice) NIL))
-    vertici)
-  )
-)
-
-;;STAMPE HASH TABLES
-(defun print-hash-table (hash-table)
-  (maphash (lambda (k v) (format t "~a: ~a~%" k v)) hash-table))
-
-(defun print-distances ()
-  (print-hash-table *distances*))
-(defun print-previous ()
-  (print-hash-table *previous*))
-
-(defun print-visited ()
-  (print-hash-table *visited*))
-(defun print-edges ()
-  (print-hash-table *edges*))
-(defun print-graphs ()
-  (print-hash-table *graphs*))
-(defun print-vertices ()
-  (print-hash-table *vertices*))
-(defun print-heaps ()
-  (print-hash-table *heaps*))
-;;;;;
 
 (defun sssp-shortest-path(graph-id source vertex-id)
+    (cond ((not (is-graph graph-id))
+        (error "Il grafo ~a non esiste." graph-id))
+        ((not (gethash (list 'vertex graph-id source) *vertices*))
+        (error "Il vertice ~a non esiste." source))
+        ((not (gethash (list 'vertex graph-id vertex-id) *vertices*))
+        (error "Il vertice ~a non esiste." vertex-id))
+    )
     (let* ((pred (sssp-previous graph-id vertex-id))
           (edge (gethash (list 'edge graph-id pred vertex-id) *edges*))
           (sssp (list edge)))
