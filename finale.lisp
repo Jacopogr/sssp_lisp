@@ -69,14 +69,21 @@
       ((not (numberp k))
         (error "La chiave ~A non e' un numero." k)))
   (let* ((heap-rep (get-heap heap-id))
+        (heap (heap-actual-heap heap-rep))
          (size (heap-size heap-rep)))
-    (cond ((= size (length (heap-actual-heap heap-rep)))
-            (error "Heap ~A pieno" heap-id)))
-    (setf (aref (heap-actual-heap heap-rep) size) (list K V))
-    (setf (gethash heap-id *heaps*)
-          (list 'heap heap-id (+ size 1) (heap-actual-heap heap-rep)))
-    (heapify-insert heap-id size)))
-
+    (cond ((= size (length heap))
+            (setf (gethash heap-id *heaps*)
+                 (list 'heap heap-id size (adjust-array heap (+ size 1)))) ;;aggiungo 1 alla capacità dell'heap
+                 (heap-insert heap-id K V) ;;richiamo la funzione per inserire nell'heap con la nuova capacità
+          )
+          (t (setf (aref heap size) (list K V))
+              (setf (gethash heap-id *heaps*)
+                (list 'heap heap-id (+ size 1) heap))
+              (heapify-insert heap-id size)
+          )
+    )
+  )
+)
 
 (defun smallest (heap indice-x indice-y size)
   (cond ((< indice-x size)
