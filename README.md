@@ -1,24 +1,24 @@
 # Progetto SSSP Lisp
 
-# Descrizione
+## Descrizione
 
-    Calcolare il percorso più breve da un punto a un altro di una mappa è un problema più che noto. Vi
-    sono diversi algoritmi in grado di risolvere questo problema, noto in letteratura come il “Single Source
-    Shortest Path Problem” (SSSP Problem, cfr., [CLR+09] capitolo 24).
-    Lo scopo di questo progetto è l’implementazione dell’algoritmo di Dijkstra (cfr., [CLR+09] 24.3), che
-    risolve il problema SSSP per grafi diretti e connessi con distanze tra vertici non negativi.
-    Inoltre l’implementazione dell’algoritmo di Dijkstra ha bisogno di un’implementazione funzionante
-    di una coda a priorità (priority queue), in altre parole di un MINHEAP.
-    Vi sono diversi modi di rappresentare i grafi in Common Lisp, l’idea principale è di avere dei vertici 
-    rappresentati da atomi (simboli e numeri interi) e di definire delle hash-tables
-    che useranno questi atomi come chiavi.
-    Di conseguenza assumiamo di avere le seguenti hash-tables:
-    - *vertices*
-    - *edges*
-    - *graphs*
-    - *visited*
-    - *distances*
-    - *previous*
+Calcolare il percorso più breve da un punto a un altro di una mappa è un problema più che noto. Vi
+sono diversi algoritmi in grado di risolvere questo problema, noto in letteratura come il “Single Source
+Shortest Path Problem” (SSSP Problem, cfr., [CLR+09] capitolo 24).
+Lo scopo di questo progetto è l’implementazione dell’algoritmo di Dijkstra (cfr., [CLR+09] 24.3), che
+risolve il problema SSSP per grafi diretti e connessi con distanze tra vertici non negativi.
+Inoltre l’implementazione dell’algoritmo di Dijkstra ha bisogno di un’implementazione funzionante
+di una coda a priorità (priority queue), in altre parole di un MINHEAP.
+Vi sono diversi modi di rappresentare i grafi in Common Lisp, l’idea principale è di avere dei vertici 
+rappresentati da atomi (simboli e numeri interi) e di definire delle hash-tables
+che useranno questi atomi come chiavi.
+Di conseguenza assumiamo di avere le seguenti hash-tables:
+- *vertices*
+- *edges*
+- *graphs*
+- *visited*
+- *distances*
+- *previous*
 
 ## Utilizzo
 
@@ -28,7 +28,7 @@ Per utilizzare l'algoritmo SSSP implementato in questo progetto, segui questi pa
 2. Crea dei vertici e degli archi contenuti nel grafo appena creato.
 3. Utilizza l'algoritmo di Dijkstra per calcolare il percorso più breve da una sorgente ad un vertice.
 
-### Predicati
+## Predicati
 
 Ecco alcuni dei predicati disponibili nel file `sssp.lisp`:
 
@@ -117,7 +117,7 @@ Ecco alcuni dei predicati disponibili nel file `sssp.lisp`:
     (sssp-dijkstra 'graph-id 'source 'V)
     ```
 
-#### Esempio di utilizzo
+## Esempio di utilizzo
 
 1. Crea un nuovo grafo
 ``` 
@@ -153,7 +153,7 @@ Ecco alcuni dei predicati disponibili nel file `sssp.lisp`:
 (sssp-shortest-path 'grafo1 'vertice1 'vertice5)
 ```
 
-##### Autori
+## Autori
 
-Eseguito da Grassi Jacopo [894565] e Matteo Mecenero [].
+Eseguito da `Grassi Jacopo` [894565] e `Matteo Mecenero` [894512].
 
